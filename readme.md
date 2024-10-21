@@ -12,7 +12,7 @@ Custom fork of Supla for local energy management and device control integration.
 ## **Setup Instructions:**
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/supla-custom-energy.git
+   git clone https://github.com/niooch/supla-custom-energy
    ```
 # SUPLA project
 
