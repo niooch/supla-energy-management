@@ -1,6 +1,22 @@
+# Supla Custom Energy Management
+
+**Description:**
+Custom fork of Supla for local energy management and device control integration. This project integrates energy price tracking and allows users to configure settings to optimize energy selling based on the lowest-priced hours.
+
+## **Features:**
+- **Energy Price Display:** View real-time energy price data in a structured table.
+- **Configurable Slider:** Select the number of lowest-priced hours to sell energy.
+- **Device Control Integration:** Automatically control devices based on selected energy settings.
+- **Local API Integration:** Interact with a custom server API for data management and device commands.
+
+## **Setup Instructions:**
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/your-username/supla-custom-energy.git
+   ```
 # SUPLA project
 
-[SUPLA](https://www.supla.org) is an open source project for home automation. 
+[SUPLA](https://www.supla.org) is an open source project for home automation.
 
 # SuplaDevice library
 This repository contain SuplaDevice libraray. It allows to implement software for devices which connect to Supla infrastructure.
@@ -9,7 +25,7 @@ SuplaDevice can be used as library for Arduino IDE, or can be used directly with
 
 Please check our [changelog](CHANGELOG.md).
 
-Below you can find basic infomration about SuplaDevice and instrutions for Arudino IDE. 
+Below you can find basic infomration about SuplaDevice and instrutions for Arudino IDE.
 
 ## Hardware requirements
 
@@ -19,7 +35,7 @@ Following network interfaces are supported:
 * Ethernet Shield with W5100 chipset
 * ENC28J60 (not recommended - see Supported hardware section)
 
-Warning: WiFi shields are currently not supported. 
+Warning: WiFi shields are currently not supported.
 
 ### ESP8266 and ESP8285
 ESP8266 and ESP8285 boards are supported. Network connection is done via WiFi.
@@ -40,23 +56,23 @@ Before you start, you will need to:
 4. make sure that communication over serial interface with your board is working (i.e. check some example Arduino application)
 5. download and install this librarary
 
-Above steps are standard Arudino IDE setup procedures not related to SuplaDevice library. You can find many tutorials on Internet with detailed instructions. Tutorials doesn't have to be related in any way with Supla. 
+Above steps are standard Arudino IDE setup procedures not related to SuplaDevice library. You can find many tutorials on Internet with detailed instructions. Tutorials doesn't have to be related in any way with Supla.
 
-After step 5 you should see Supla example applications in Arduino IDE examples. Select one and have fun! Example file requires adjustments before you compile them and upload to your board. Please read all comments in example and make proper adjustments. 
+After step 5 you should see Supla example applications in Arduino IDE examples. Select one and have fun! Example file requires adjustments before you compile them and upload to your board. Please read all comments in example and make proper adjustments.
 
 ## Usage
 
 ### Network interfaces
 Supported network interfaces for Arduino Mega:
 * Ethernet Shield - with W5100 chipset. Include `<supla/network/ethernet_shield.h>` and add `Supla::EthernetShield ethernet;` as a global variable.
-* ENC28J60 - it requires additional EthernetENC library. Include `<supla/network/ENC28J60.h>` and 
+* ENC28J60 - it requires additional EthernetENC library. Include `<supla/network/ENC28J60.h>` and
 add `Supla::ENC28J60 ethernet;` as a global variable. Warning: network initialization on this library is blocking. In case of missing ENC28J60 board
 or some other problem with network, program will stuck on initialization and will not work until connection is properly esablished.
-Second warning: UIPEthernet library is consuming few hundred of bytes of RAM memory more, compared to standard Ethernet library. 
+Second warning: UIPEthernet library is consuming few hundred of bytes of RAM memory more, compared to standard Ethernet library.
 
 Supported network interface for ESP8266:
 * There is a native WiFi controller. Include `<supla/network/esp_wifi.h>` and add `Supla::ESPWifi wifi(ssid, password);` as a global variable and provide SSID and password in a constructor.
-Warning: by default connection with Supla server is encrypted. Default settings of SSL consumes big amount of RAM. 
+Warning: by default connection with Supla server is encrypted. Default settings of SSL consumes big amount of RAM.
 To disable SSL connection, use:
   `wifi.enableSSL(false);`
 
@@ -87,13 +103,13 @@ Each example can run on Arduino Mega, ESP8266, or ESP32 board - unless mentioned
 * `supla/device` - device maintanance functions (like status LED which informs about connection status)
 * `supla/pv` - supported integrations with inverters used with photovoltaic
 * `supla/protocol` - protocol layers implementation for Supla and MQTT
-* `supla` - all common classes are defined in main `supla` folder. You can find there classes that create framework on which all other components work. 
+* `supla` - all common classes are defined in main `supla` folder. You can find there classes that create framework on which all other components work.
 
 Some functions from above folders have dependencies to external libraries. Please check documentation included in header files.
 
 ### How does it work?
 
-Everything that is visible in Supla (in Cloud, on API, mobile application) is called "channel". Supla channels are used to control relays, read temperature, check if garage door is open. 
+Everything that is visible in Supla (in Cloud, on API, mobile application) is called "channel". Supla channels are used to control relays, read temperature, check if garage door is open.
 
 SuplaDevice implements support for channels in `Channel` and `ChannelExtended` classes. Instances of those classes are part of objects called `Element` which are building blocks for any SuplaDevice application.
 
@@ -106,11 +122,11 @@ Supla channel number is assigned to each elemement with channel in an order of c
 `Element` class defines follwoing virtual methods that are called by SuplaDevice:
 1. `onLoadConfig` - called first within `SuplaDevice.begin()` method. It reads element configuration from Supla::Config instance.
 2. `onLoadState` - called second within `SuplaDevice.begin()` method. It reads element state data from persistent memory storage.
-3. `onInit` - called third within `SuplaDevice.begin()` method. It should initialize your element - all GPIO settings should be done there and proper state of channel should be set. 
+3. `onInit` - called third within `SuplaDevice.begin()` method. It should initialize your element - all GPIO settings should be done there and proper state of channel should be set.
 4. `onSaveState` - called in `SuplaDevice.iterate()` - it saves state data to persistant storage. It is not called on each iteration. `Storage` class makes sure that storing to memory does not happen too often and time delay between saves depends on implementation.
 5. `onRegistered` - called in `SuplaDevice.iterate()` - it is called after SuplaDevice is registered to Supla server.
 6. `iterateAlways` - called on each iteration of `SuplaDevice.iterate()` method, regardless of network/connection status. Be careful - some other methods called in `SuplaDevice.iterate()` method may block program execution for some time (even few seconds) - i.e. trying to establish connection with Supla server is blocking - in case server is not accessible, it will iterfere with `iterateAlways` method. So time critical functions should not be put here.
-7. `iterateConnected` - called on each iterateion of `SuplaDevice.iterate()` method when device is connected and properly registered in Supla server. This method usually checks if there is some new data to be send to server (i.e. new temperature reading) and sends it. 
+7. `iterateConnected` - called on each iterateion of `SuplaDevice.iterate()` method when device is connected and properly registered in Supla server. This method usually checks if there is some new data to be send to server (i.e. new temperature reading) and sends it.
 8. `onTimer` - called every 10 ms after enabling in `SuplaDevice.begin()`
 9. `onFastTimer` - called every 1 ms (0.5 ms in case of Arudino Mega) after enabling in `SuplaDevice.begin()`
 
@@ -163,15 +179,15 @@ Supla::EthernetShield ethernet(mac, localIp);
 
 After that go to SuplaDevice.begin() method. Old code looked like this
 ```
-SuplaDevice.begin(GUID,              // Global Unique Identifier 
+SuplaDevice.begin(GUID,              // Global Unique Identifier
                   mac,               // Ethernet MAC address
                   "svr1.supla.org",  // SUPLA server address
-                  locationId,                 // Location ID 
+                  locationId,                 // Location ID
                   locationPassword);          // Location Password
 ```
 This method requires now different set of parameters:
 ```
-  SuplaDevice.begin(GUID,              // Global Unique Identifier 
+  SuplaDevice.begin(GUID,              // Global Unique Identifier
                     "svr1.supla.org",  // SUPLA server address
                     "mail@address.pl",     // Email address
                     AUTHKEY);          // Authentication key
@@ -244,7 +260,7 @@ Sensor category is for all elements/channels that reads something and provides d
 * `HX711` - HX711 support (weight sensor)
 * `HygroMeter` - base class for sensors capable of measuring humidity
 
-### Control 
+### Control
 Control category is for all elements/channels that are used to control something, i.e. relays, buttons, RGBW.
 Classes in this category are in namespace `Supla::Control`:
 
@@ -275,7 +291,7 @@ SuplaDevice provides integrations for following inverters:
 * `Fronius`
 * `SolarEdge`
 
-## Supported persistant memory storage 
+## Supported persistant memory storage
 Storage class is used as an abstraction for different persistant memory devices. Some elements/channels will not work properly without storage and some will have limitted functionalities. I.e. `ImpulseCounter` requires storage to save counter value, so it could be restored after reset, or `RollerShutter` requires storage to keep openin/closing times and current shutter possition. Currently two variants of storage classes are supported.
 ### EEPROM/Flash memory
 EEPROM (in case of Arduino Mega) and Flash (in case of ESP) are build into most of boards. Usually writing should be safe for 100 000 write operations (on each bit). So in order to limit those operations, this kind of Storage will save data in longer time periods (every few minutes). Supla will not write data if there is no change.
